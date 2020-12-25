@@ -1,22 +1,28 @@
+use super::material::Material;
 use super::Ray;
 use super::Vec3;
 use std::rc::Rc;
 
 pub trait Hittable {
-    type Output: ?Sized;
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
-#[derive(Copy, Clone)]
 pub struct HitRecord {
     pub t: f64,
     pub p: Vec3,
     pub normal: Vec3,
     pub front_face: bool,
+    pub material: Rc<dyn Material>,
 }
 
 impl HitRecord {
-    pub fn new(t: f64, p: Vec3, outward_normal: Vec3, r: &Ray) -> Self {
+    pub fn new(
+        t: f64,
+        p: Vec3,
+        outward_normal: Vec3,
+        r: &Ray,
+        material: &Rc<dyn Material>,
+    ) -> Self {
         let front_face = r.direction().dot(outward_normal) < 0.;
         HitRecord {
             t,
@@ -27,19 +33,20 @@ impl HitRecord {
             } else {
                 -outward_normal
             },
+            material: material.clone(),
         }
     }
 }
 
 pub struct HittableList {
-    list: Vec<Rc<dyn Hittable<Output = Option<HitRecord>>>>,
+    pub list: Vec<Rc<dyn Hittable>>,
 }
 
 impl HittableList {
     pub fn new() -> Self {
         HittableList { list: vec![] }
     }
-    pub fn add(&mut self, obj: Rc<dyn Hittable<Output = Option<HitRecord>>>) {
+    pub fn add(&mut self, obj: Rc<dyn Hittable>) {
         self.list.push(obj);
     }
 
@@ -49,25 +56,12 @@ impl HittableList {
 }
 
 impl Hittable for HittableList {
-    type Output = Option<HitRecord>;
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut rec = None;
         let mut closest_so_far = t_max;
-
-        /*for item in self.list.iter() {
-            let temp = item.hit(r, t_min, closest_so_far);
-            match temp {
-                Some(hit) => {
-                    closest_so_far = hit.t;
-                    rec = temp;
-                }
-                None => (),
-            }
-        }*/
-
         for item in self.list.iter() {
             let temp = item.hit(r, t_min, closest_so_far);
-            if let Some(hit) = temp {
+            if let Some(ref hit) = temp {
                 closest_so_far = hit.t;
                 rec = temp;
             }

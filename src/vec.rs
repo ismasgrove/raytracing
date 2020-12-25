@@ -1,3 +1,5 @@
+use super::utils;
+use rand::Rng;
 use std::ops;
 
 #[derive(Copy, Clone, Debug)]
@@ -41,7 +43,7 @@ impl Vec3 {
     }
 
     pub fn cross(&self, _rhs: Self) -> Self {
-        Vec3 {
+        Self {
             e: [
                 self.e[1] * _rhs.e[2] - self.e[2] * _rhs.e[1],
                 self.e[2] * _rhs.e[0] - self.e[0] * _rhs.e[2],
@@ -52,6 +54,54 @@ impl Vec3 {
 
     pub fn normalize(&self) -> Self {
         *self / self.length()
+    }
+
+    pub fn random_from_range(min: f64, max: f64) -> Self {
+        Self::new(
+            utils::random_from_range(min, max),
+            utils::random_from_range(min, max),
+            utils::random_from_range(min, max),
+        )
+    }
+    pub fn random() -> Self {
+        Self::new(
+            utils::random_double(),
+            utils::random_double(),
+            utils::random_double(),
+        )
+    }
+
+    pub fn random_in_unit_sphere() -> Self {
+        loop {
+            let v = Self::random_from_range(-1., 1.);
+            if v.squared_length() >= 1. {
+                return v;
+            } else {
+            }
+        }
+    }
+
+    pub fn random_unit_vector() -> Self {
+        Self::random_in_unit_sphere().normalize()
+    }
+
+    pub fn random_in_hemisphere(normal: Self) -> Self {
+        let in_unit_sphere = Self::random_in_unit_sphere();
+        if in_unit_sphere.dot(normal) > 0. {
+            in_unit_sphere
+        } else {
+            -in_unit_sphere
+        }
+    }
+
+    pub fn near_zero(&self) -> bool {
+        (self.e[0].abs() < f64::EPSILON)
+            && (self.e[1].abs() < f64::EPSILON)
+            && (self.e[2].abs() < f64::EPSILON)
+    }
+
+    pub fn reflect(v: &Self, n: &Self) -> Self {
+        *v - 2. * v.dot(*n) * *n
     }
 }
 
