@@ -2,7 +2,7 @@ use super::HitRecord;
 use super::Ray;
 use super::Vec3;
 
-pub trait Material {
+pub trait Material: Send + Sync {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> (Vec3, Ray, bool);
 }
 
@@ -29,18 +29,22 @@ impl Material for Lambertian {
 
 pub struct Metal {
     albedo: Vec3,
+    fuzziness: f64,
 }
 
 impl Metal {
-    pub fn new(col: Vec3) -> Self {
-        Metal { albedo: col }
+    pub fn new(albedo: Vec3, fuzziness: f64) -> Self {
+        Metal { albedo, fuzziness }
     }
 }
 
 impl Material for Metal {
     fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> (Vec3, Ray, bool) {
         let reflected = Vec3::reflect(&r_in.direction(), &rec.normal);
-        let scattered = Ray::new(rec.p, reflected);
+        let scattered = Ray::new(
+            rec.p,
+            reflected + self.fuzziness * Vec3::random_in_unit_sphere(),
+        );
         let scatter = scattered.direction().dot(rec.normal) > 0.;
         (self.albedo, scattered, scatter)
     }

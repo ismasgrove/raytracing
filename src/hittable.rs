@@ -2,8 +2,9 @@ use super::material::Material;
 use super::Ray;
 use super::Vec3;
 use std::rc::Rc;
+use std::sync::Arc;
 
-pub trait Hittable {
+pub trait Hittable: Sync + Send {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
@@ -12,7 +13,7 @@ pub struct HitRecord {
     pub p: Vec3,
     pub normal: Vec3,
     pub front_face: bool,
-    pub material: Rc<dyn Material>,
+    pub material: Arc<dyn Material>,
 }
 
 impl HitRecord {
@@ -21,7 +22,7 @@ impl HitRecord {
         p: Vec3,
         outward_normal: Vec3,
         r: &Ray,
-        material: &Rc<dyn Material>,
+        material: &Arc<dyn Material>,
     ) -> Self {
         let front_face = r.direction().dot(outward_normal) < 0.;
         HitRecord {
@@ -39,20 +40,23 @@ impl HitRecord {
 }
 
 pub struct HittableList {
-    pub list: Vec<Rc<dyn Hittable>>,
+    list: Vec<Arc<dyn Hittable>>,
 }
 
 impl HittableList {
-    pub fn new() -> Self {
-        HittableList { list: vec![] }
+    pub fn new(list: Vec<Arc<dyn Hittable>>) -> Self {
+        HittableList { list }
     }
+    /*
     pub fn add(&mut self, obj: Rc<dyn Hittable>) {
         self.list.push(obj);
     }
-
+    */
+    /*
     pub fn clear(&mut self) {
         self.list.clear();
     }
+    */
 }
 
 impl Hittable for HittableList {
