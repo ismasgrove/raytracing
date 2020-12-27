@@ -1,9 +1,10 @@
 use rayon::prelude::*;
+use std::env;
 use std::f64;
 use std::fs::File;
 use std::io::{BufWriter, Write};
 use std::sync::Arc;
-use std::time::{Duration, Instant};
+use std::time::Instant;
 
 mod camera;
 mod hittable;
@@ -51,21 +52,20 @@ fn write_pixel(col: &Vec3, writer: &mut BufWriter<&File>, n_samples: i32) {
 
 fn process_scanline<T: Hittable>(
     scanline_index: i32,
-    N_SAMPLES: i32,
-    NX: f64,
+    n_samples: i32,
+    nx: i32,
     ny: i32,
-    MAX_DEPTH: i32,
+    max_depth: i32,
     world: &Arc<T>,
     cam: &Camera,
 ) -> Vec<Pixel> {
     let mut scanline: Vec<Pixel> = vec![];
-    //println!("Scanlines remaining {}", scanline_index);
-    for i in 0..NX as i32 {
+    for i in 0..nx as i32 {
         let mut pixel_color = Vec3::new(1., 0., 0.);
-        for _ in 0..N_SAMPLES {
-            let u = (i as f64 + utils::random_double()) / (NX - 1.) as f64;
+        for _ in 0..n_samples {
+            let u = (i as f64 + utils::random_double()) / (nx - 1) as f64;
             let v = (scanline_index as f64 + utils::random_double()) / (ny - 1) as f64;
-            pixel_color += color(&cam.get_ray(u, v), &world, MAX_DEPTH);
+            pixel_color += color(&cam.get_ray(u, v), &world, max_depth);
         }
         scanline.push(Pixel {
             x: i,
@@ -78,13 +78,18 @@ fn process_scanline<T: Hittable>(
 }
 
 fn main() {
-    const NX: f64 = 1000.;
+    const NX: i32 = 1000;
     const N_SAMPLES: i32 = 100;
     const MAX_DEPTH: i32 = 100;
     let cam = Camera::new();
-    let ny = (NX / cam.aspect_ratio) as i32;
+    let ny = (NX as f64 / cam.aspect_ratio) as i32;
 
-    let f = File::create("big rayon picture.ppm").expect("Unable to create file.");
+    let args: Vec<String> = env::args().collect();
+    assert_eq!(args.len(), 2);
+
+    let filename = &args[1];
+    assert_eq!(filename.contains(".ppm"), true);
+    let f = File::create(filename).expect("Unable to create file.");
     let mut writer = BufWriter::new(&f);
 
     writer
@@ -124,7 +129,6 @@ fn main() {
         .rev()
         .map(|sample| process_scanline(sample, N_SAMPLES, NX, ny, MAX_DEPTH, &world, &cam))
         .collect();
-    //println!("nx: {} ny: {}", NX, ny);
 
     assert_eq!(image[0].len() * image.len(), (NX as i32 * ny) as usize);
     assert_eq!(
@@ -142,11 +146,5 @@ fn main() {
 
     let duration = start.elapsed();
 
-    println!("runtime: {:?}", duration);
-
-    /*
-    for j in (0..=(ny - 1) as i32).rev() {
-        process_scanline(j, N_SAMPLES, NX, ny, MAX_DEPTH, &world, &cam, &mut writer);
-    }
-    */
+    println!("runtime: {}", duration.as_secs());
 }

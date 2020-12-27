@@ -17,9 +17,9 @@ impl Pixel {
 impl Ord for Pixel {
     fn cmp(&self, other: &Self) -> Ordering {
         if self.y.cmp(&other.y) == Ordering::Equal {
-            return self.y.cmp(&other.y);
+            self.y.cmp(&other.y)
         } else {
-            return self.x.cmp(&other.x);
+            self.x.cmp(&other.x)
         }
     }
 }
@@ -27,9 +27,9 @@ impl Ord for Pixel {
 impl PartialOrd for Pixel {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         if self.y.cmp(&other.y) == Ordering::Equal {
-            return Some(self.y.cmp(&other.y));
+            Some(self.y.cmp(&other.y))
         } else {
-            return Some(self.x.cmp(&other.x));
+            Some(self.x.cmp(&other.x))
         }
     }
 }

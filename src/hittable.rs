@@ -1,7 +1,6 @@
 use super::material::Material;
 use super::Ray;
 use super::Vec3;
-use std::rc::Rc;
 use std::sync::Arc;
 
 pub trait Hittable: Sync + Send {

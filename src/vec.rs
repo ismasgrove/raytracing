@@ -1,5 +1,4 @@
 use super::utils;
-use rand::Rng;
 use std::ops;
 
 #[derive(Copy, Clone, Debug)]

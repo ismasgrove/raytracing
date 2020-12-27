@@ -3,7 +3,6 @@ use super::Material;
 use super::Ray;
 use super::Vec3;
 
-use std::rc::Rc;
 use std::sync::Arc;
 
 pub struct Sphere {
@@ -11,7 +10,7 @@ pub struct Sphere {
     pub radius: f64,
     pub material: Arc<dyn Material>,
 }
-
+/*
 impl Sphere {
     pub fn new(center: Vec3, radius: f64, material: Arc<dyn Material>) -> Self {
         Sphere {
@@ -21,7 +20,7 @@ impl Sphere {
         }
     }
 }
-
+*/
 impl Hittable for Sphere {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc: Vec3 = r.origin() - self.center;
