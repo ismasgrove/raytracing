@@ -16,4 +16,5 @@ cargo run image_name.ppm
 
 1. Investigate GPU-acceleration.
 2. Use 'image' crate to generate different formats on demand, from the command line.
+3. An indication on rendering progress during runtime.
   
