@@ -5,3 +5,15 @@ This is an exercise on raytracing using the resource 'Raytracing in a Weekend' b
 Book 1 cover reproduced in 44 minutes on my i7-6500U as of last commit.
 
 ![Book 1 cover](images/book1_cover.jpg?raw=true)
+
+How to run:
+
+```shell
+cargo run image_name.ppm
+```
+
+**TODO** (implementation-based, as implementing the rest of the books' features goes without saying):
+
+1. Investigate GPU-acceleration.
+2. Use 'image' crate to generate different formats on demand, from the command line.
+  
