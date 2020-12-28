@@ -4,4 +4,4 @@ This is an exercise on raytracing using the resource 'Raytracing in a Weekend' b
 
 Book 1 cover reproduced in 44 minutes on my i7-6500U as of last commit.
 
-![Book 1 cover](\images\book1_cover.jpg?raw=true)
+![Book 1 cover](images/book1_cover.jpg?raw=true)
