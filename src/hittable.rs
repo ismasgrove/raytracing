@@ -39,18 +39,16 @@ impl HitRecord {
 }
 
 pub struct HittableList {
-    list: Vec<Arc<dyn Hittable>>,
+    pub list: Vec<Arc<dyn Hittable>>,
 }
 
 impl HittableList {
     pub fn new(list: Vec<Arc<dyn Hittable>>) -> Self {
         HittableList { list }
     }
-    /*
-    pub fn add(&mut self, obj: Rc<dyn Hittable>) {
+    pub fn add(&mut self, obj: Arc<dyn Hittable>) {
         self.list.push(obj);
     }
-    */
     /*
     pub fn clear(&mut self) {
         self.list.clear();

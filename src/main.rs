@@ -73,15 +73,83 @@ fn process_scanline<T: Hittable>(
             pixel_color,
         });
     }
-
     scanline
 }
 
+pub fn random_scene() -> HittableList {
+    let mut world: HittableList = HittableList { list: vec![] };
+    let ground_material = Arc::new(material::Lambertian::new(Vec3::new(0.5, 0.5, 0.5)));
+    world.add(Arc::new(Sphere {
+        center: Vec3::new(0., -1000., 0.),
+        radius: 1000.,
+        material: ground_material,
+    }));
+
+    for i in -11..11 {
+        for j in -11..11 {
+            let choose_mat = utils::random_double();
+            let center = Vec3::new(
+                i as f64 + 0.9 * utils::random_double(),
+                0.2,
+                j as f64 + 0.9 * utils::random_double(),
+            );
+
+            if (center - Vec3::new(4., 0.2, 0.)).length() > 0.9 {
+                if choose_mat < 0.8 {
+                    let albedo = Vec3::random() * Vec3::random();
+                    let sphere_material = Arc::new(material::Lambertian::new(albedo));
+                    world.add(Arc::new(Sphere {
+                        center,
+                        radius: 0.2,
+                        material: sphere_material,
+                    }));
+                } else if choose_mat < 0.95 {
+                    let albedo = Vec3::random_from_range(0.5, 1.);
+                    let fuzz = utils::random_from_range(0., 0.5);
+                    let sphere_material = Arc::new(material::Metal::new(albedo, fuzz));
+                    world.add(Arc::new(Sphere {
+                        center,
+                        radius: 0.2,
+                        material: sphere_material,
+                    }));
+                } else {
+                    let sphere_material = Arc::new(material::Dielectric::new(1.5));
+                    world.add(Arc::new(Sphere {
+                        center,
+                        radius: 0.2,
+                        material: sphere_material,
+                    }));
+                }
+            }
+        }
+    }
+
+    world.add(Arc::new(Sphere {
+        center: Vec3::new(0., 1., 0.),
+        radius: 1.,
+        material: Arc::new(material::Dielectric::new(1.5)),
+    }));
+    world.add(Arc::new(Sphere {
+        center: Vec3::new(-4., 1., 0.),
+        radius: 1.,
+        material: Arc::new(material::Lambertian::new(Vec3::new(0.4, 0.2, 0.1))),
+    }));
+    world.add(Arc::new(Sphere {
+        center: Vec3::new(4., 1., 0.),
+        radius: 1.,
+        material: Arc::new(material::Metal::new(Vec3::new(0.7, 0.6, 0.5), 1.)),
+    }));
+
+    world
+}
+
 fn main() {
-    const NX: i32 = 1000;
-    const N_SAMPLES: i32 = 100;
-    const MAX_DEPTH: i32 = 100;
-    let cam = Camera::new();
+    const NX: i32 = 1200;
+    const N_SAMPLES: i32 = 500;
+    const MAX_DEPTH: i32 = 50;
+    let lookfrom = Vec3::new(13., 2., 3.);
+    let lookat = Vec3::new(0., 0., 0.);
+    let cam = Camera::new(20., lookfrom, lookat, Vec3::new(0., 1., 0.), 0.1, 10.);
     let ny = (NX as f64 / cam.aspect_ratio) as i32;
 
     let args: Vec<String> = env::args().collect();
@@ -96,34 +164,10 @@ fn main() {
         .write_all(format!("P3\n{} {}\n255\n", NX, ny).as_bytes())
         .expect("Unable to write");
 
-    let material_ground = Arc::new(material::Lambertian::new(Vec3::new(0.8, 0.8, 0.0)));
-    let material_center = Arc::new(material::Lambertian::new(Vec3::new(0.7, 0.3, 0.3)));
-    let material_left = Arc::new(material::Metal::new(Vec3::new(0.8, 0.8, 0.8), 0.3));
-    let material_right = Arc::new(material::Metal::new(Vec3::new(0.8, 0.6, 0.2), 1.0));
+    let world = Arc::new(random_scene());
 
-    let world = Arc::new(HittableList::new(vec![
-        Arc::new(Sphere {
-            center: Vec3::new(0., -100.5, -1.),
-            radius: 100.,
-            material: material_ground,
-        }),
-        Arc::new(Sphere {
-            center: Vec3::new(0., 0., -1.),
-            radius: 0.5,
-            material: material_center,
-        }),
-        Arc::new(Sphere {
-            center: Vec3::new(-1., 0., -1.),
-            radius: 0.5,
-            material: material_left,
-        }),
-        Arc::new(Sphere {
-            center: Vec3::new(1., 0., -1.),
-            radius: 0.5,
-            material: material_right,
-        }),
-    ]));
     let start = Instant::now();
+
     let mut image: Vec<Vec<Pixel>> = (0..(ny))
         .into_par_iter()
         .rev()
@@ -146,5 +190,5 @@ fn main() {
 
     let duration = start.elapsed();
 
-    println!("runtime: {}", duration.as_secs());
+    println!("runtime: {} minutes", duration.as_secs() / 60);
 }

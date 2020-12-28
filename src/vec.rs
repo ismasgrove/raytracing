@@ -70,6 +70,21 @@ impl Vec3 {
         )
     }
 
+    pub fn random_in_unit_disk() -> Vec3 {
+        loop {
+            let p = Vec3::new(
+                utils::random_from_range(-1., 1.),
+                utils::random_from_range(-1., 1.),
+                0.,
+            );
+            if p.squared_length() >= 1. {
+                continue;
+            } else {
+                return p;
+            };
+        }
+    }
+
     pub fn random_in_unit_sphere() -> Self {
         loop {
             let v = Self::random_from_range(-1., 1.);
@@ -101,6 +116,20 @@ impl Vec3 {
 
     pub fn reflect(v: &Self, n: &Self) -> Self {
         *v - 2. * v.dot(*n) * *n
+    }
+    pub fn refract(uv: &Self, n: &Self, etai_over_etat: f64) -> Self {
+        let cos_theta = n.dot(-*uv).min(1.);
+        let r_out_perp = etai_over_etat * (*uv + cos_theta * *n);
+        let r_out_par = -(1. - r_out_perp.squared_length()).abs().sqrt() * *n;
+        r_out_perp + r_out_par
+    }
+
+    pub fn sqrt(&self) -> Self {
+        Vec3::new(self.x().sqrt(), self.y().sqrt(), self.z().sqrt())
+    }
+
+    pub fn abs(&self) -> Self {
+        Vec3::new(self.x().abs(), self.x().abs(), self.x().abs())
     }
 }
 

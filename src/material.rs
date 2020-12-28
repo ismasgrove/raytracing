@@ -1,3 +1,4 @@
+use super::utils;
 use super::HitRecord;
 use super::Ray;
 use super::Vec3;
@@ -47,5 +48,41 @@ impl Material for Metal {
         );
         let scatter = scattered.direction().dot(rec.normal) > 0.;
         (self.albedo, scattered, scatter)
+    }
+}
+
+pub struct Dielectric {
+    refr_index: f64,
+}
+
+impl Dielectric {
+    pub fn new(refr_index: f64) -> Self {
+        Dielectric { refr_index }
+    }
+    fn reflectance(cosine: f64, refr_index: f64) -> f64 {
+        let mut r0 = (1. - refr_index) / (1. + refr_index);
+        r0 *= r0;
+        r0 + (1. - r0) * (1. - cosine).powf(5.)
+    }
+}
+
+impl Material for Dielectric {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> (Vec3, Ray, bool) {
+        let refr_ratio = if rec.front_face {
+            1. / self.refr_index
+        } else {
+            self.refr_index
+        };
+        let unit_dir = r_in.direction().normalize();
+        let cos_theta = 1.0_f64.min(rec.normal.dot(-unit_dir));
+        let sin_theta = (1. - cos_theta * cos_theta).sqrt();
+        let dir = if (refr_ratio * sin_theta > 1.)
+            || Dielectric::reflectance(cos_theta, refr_ratio) > utils::random_double()
+        {
+            Vec3::reflect(&unit_dir, &rec.normal)
+        } else {
+            Vec3::refract(&unit_dir, &rec.normal, refr_ratio)
+        };
+        (Vec3::new(1., 1., 1.), Ray::new(rec.p, dir), true)
     }
 }
