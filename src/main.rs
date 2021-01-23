@@ -1,3 +1,4 @@
+use indicatif::ParallelProgressIterator;
 use rayon::prelude::*;
 use std::env;
 use std::f64;
@@ -20,7 +21,7 @@ use hittable::{HitRecord, Hittable, HittableList};
 use material::Material;
 use pixel::Pixel;
 use ray::Ray;
-use sphere::Sphere;
+use sphere::{MovingSphere, Sphere};
 use vec::Vec3;
 
 fn color<T: Hittable>(r: &Ray, world: &Arc<T>, depth: i32) -> Vec3 {
@@ -72,6 +73,9 @@ fn process_scanline<T: Hittable>(
             y: scanline_index,
             pixel_color,
         });
+        //let mut curr_prog = progress.lock().unwrap();
+        //*curr_prog += 1;
+        //println!("{} Pixels raytraced: {}/{}", ::All, curr_prog, nx * ny);
     }
     scanline
 }
@@ -98,11 +102,15 @@ pub fn random_scene() -> HittableList {
                 if choose_mat < 0.8 {
                     let albedo = Vec3::random() * Vec3::random();
                     let sphere_material = Arc::new(material::Lambertian::new(albedo));
-                    world.add(Arc::new(Sphere {
+                    let new_center = center + Vec3::new(0., utils::random_from_range(0., 0.5), 0.);
+                    world.add(Arc::new(MovingSphere::new(
                         center,
-                        radius: 0.2,
-                        material: sphere_material,
-                    }));
+                        new_center,
+                        0.2,
+                        sphere_material,
+                        0.,
+                        1.,
+                    )));
                 } else if choose_mat < 0.95 {
                     let albedo = Vec3::random_from_range(0.5, 1.);
                     let fuzz = utils::random_from_range(0., 0.5);
@@ -144,12 +152,21 @@ pub fn random_scene() -> HittableList {
 }
 
 fn main() {
-    const NX: i32 = 1200;
-    const N_SAMPLES: i32 = 500;
+    const NX: i32 = 400;
+    const N_SAMPLES: i32 = 50;
     const MAX_DEPTH: i32 = 50;
     let lookfrom = Vec3::new(13., 2., 3.);
     let lookat = Vec3::new(0., 0., 0.);
-    let cam = Camera::new(20., lookfrom, lookat, Vec3::new(0., 1., 0.), 0.1, 10.);
+    let cam = Camera::new(
+        20.,
+        lookfrom,
+        lookat,
+        Vec3::new(0., 1., 0.),
+        0.1,
+        10.,
+        None,
+        None,
+    );
     let ny = (NX as f64 / cam.aspect_ratio) as i32;
 
     let args: Vec<String> = env::args().collect();
@@ -168,9 +185,12 @@ fn main() {
 
     let start = Instant::now();
 
+    println!("Scanlines rendered:");
+
     let mut image: Vec<Vec<Pixel>> = (0..(ny))
         .into_par_iter()
         .rev()
+        .progress_count(ny as u64)
         .map(|sample| process_scanline(sample, N_SAMPLES, NX, ny, MAX_DEPTH, &world, &cam))
         .collect();
 
@@ -190,5 +210,5 @@ fn main() {
 
     let duration = start.elapsed();
 
-    println!("runtime: {} minutes", duration.as_secs() / 60);
+    println!("runtime: {} seconds", duration.as_secs());
 }

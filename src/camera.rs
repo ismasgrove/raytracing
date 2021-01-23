@@ -11,6 +11,8 @@ pub struct Camera {
     u: Vec3,
     v: Vec3,
     lens_radius: f64,
+    time0: Option<f64>,
+    time1: Option<f64>,
 }
 
 impl Camera {
@@ -21,10 +23,12 @@ impl Camera {
         vup: Vec3,
         aperture: f64,
         focus_dist: f64,
+        time0: Option<f64>,
+        time1: Option<f64>,
     ) -> Self {
         let theta = utils::degrees_to_radians(vfov);
         let h = (theta / 2.).tan();
-        let aspect_ratio: f64 = 3. / 2.;
+        let aspect_ratio: f64 = 16. / 9.;
         let viewport_height: f64 = 2. * h;
         let viewport_width: f64 = aspect_ratio * viewport_height;
 
@@ -45,6 +49,8 @@ impl Camera {
             u,
             v,
             lens_radius: aperture / 2.,
+            time0,
+            time1,
         }
     }
     pub fn get_ray(&self, s: f64, t: f64) -> Ray {
@@ -53,6 +59,10 @@ impl Camera {
         Ray::new(
             self.origin + offset,
             self.lower_left + s * self.horizontal + t * self.vertical - self.origin - offset,
+            Some(utils::random_from_range(
+                self.time0.unwrap_or(0.),
+                self.time1.unwrap_or(1.),
+            )),
         )
     }
 }

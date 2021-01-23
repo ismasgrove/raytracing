@@ -10,3 +10,4 @@ edition = "2018"
 rayon = "1.5.0"
 image = "0.23.12"
 rand = "0.8.0"
+indicatif = {version = "0.15.0", features = ["rayon"]}
