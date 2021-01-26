@@ -73,9 +73,6 @@ fn process_scanline<T: Hittable>(
             y: scanline_index,
             pixel_color,
         });
-        //let mut curr_prog = progress.lock().unwrap();
-        //*curr_prog += 1;
-        //println!("{} Pixels raytraced: {}/{}", ::All, curr_prog, nx * ny);
     }
     scanline
 }
