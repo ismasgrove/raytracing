@@ -1,3 +1,5 @@
+use utils::random_from_range;
+
 use super::utils;
 use std::ops;
 
@@ -9,6 +11,10 @@ pub struct Vec3 {
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { e: [x, y, z] }
+    }
+
+    pub fn new_diagonal(x: f64) -> Self {
+        Self { e: [x, x, x] }
     }
 
     pub fn x(&self) -> f64 {
@@ -28,6 +34,10 @@ impl Vec3 {
     }
     pub fn b(&self) -> f64 {
         self.e[2]
+    }
+
+    pub fn index(&self, i: i32) -> f64 {
+        self.e[i as usize]
     }
 
     pub fn length(&self) -> f64 {
@@ -70,9 +80,9 @@ impl Vec3 {
         )
     }
 
-    pub fn random_in_unit_disk() -> Vec3 {
+    pub fn random_in_unit_disk() -> Self {
         loop {
-            let p = Vec3::new(
+            let p = Self::new(
                 utils::random_from_range(-1., 1.),
                 utils::random_from_range(-1., 1.),
                 0.,
@@ -88,7 +98,7 @@ impl Vec3 {
     pub fn random_in_unit_sphere() -> Self {
         loop {
             let v = Self::random_from_range(-1., 1.);
-            if v.squared_length() >= 1. {
+            if v.squared_length() <= 1. {
                 return v;
             } else {
             }
@@ -97,6 +107,20 @@ impl Vec3 {
 
     pub fn random_unit_vector() -> Self {
         Self::random_in_unit_sphere().normalize()
+
+        /*
+            equal-area projection
+            https://math.stackexchange.com/questions/44689/how-to-find-a-random-axis-or-unit-vector-in-3d
+
+        let (a, z) = (
+            utils::random_from_range(0., 2. * std::f64::consts::PI),
+            utils::random_from_range(-1., 1.),
+        );
+
+        let r = (1. - z * z).sqrt();
+
+        Vec3::new(r * (a.cos()), r * (a.sin()), z)
+        */
     }
 
     pub fn random_in_hemisphere(normal: Self) -> Self {

@@ -20,6 +20,12 @@ pub fn random_double() -> f64 {
     rng.gen()
 }
 
+pub fn random_int(min: i32, max: i32) -> i32 {
+    let mut rng = rand::thread_rng();
+    let i: i32 = rng.gen_range(min..max);
+    i
+}
+
 pub fn random_from_range(min: f64, max: f64) -> f64 {
     let mut rng = rand::thread_rng();
     rng.gen_range(min..max)

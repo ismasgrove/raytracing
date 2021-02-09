@@ -1,34 +1,39 @@
-use super::utils;
-use super::HitRecord;
-use super::Ray;
-use super::Vec3;
+use super::{texture, utils, Arc, HitRecord, Ray, Texture, Vec3};
 
 pub trait Material: Send + Sync {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> (Vec3, Ray, bool);
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)>;
+    fn emitted(&self, _u: f64, _v: f64, _p: &Vec3) -> Vec3 {
+        Vec3::new(0., 0., 0.)
+    }
 }
 
 pub struct Lambertian {
-    albedo: Vec3,
+    albedo: Arc<dyn Texture>,
 }
 
 impl Lambertian {
     pub fn new(col: Vec3) -> Self {
-        Lambertian { albedo: col }
+        Lambertian {
+            albedo: Arc::new(texture::Solid::color_vec3(col)),
+        }
+    }
+    pub fn textured(t: Arc<dyn Texture>) -> Self {
+        Lambertian { albedo: t }
     }
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> (Vec3, Ray, bool) {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
         let mut scatter_direction = rec.normal + Vec3::random_unit_vector();
+
         if scatter_direction.near_zero() {
             scatter_direction = rec.normal;
         }
 
-        (
-            self.albedo,
-            Ray::new(rec.p, scatter_direction, Some(r_in.time())),
-            true,
-        )
+        Some((
+            self.albedo.value(rec.u, rec.v, &rec.p),
+            Ray::new(rec.p, 0.5 * scatter_direction, Some(r_in.time())),
+        ))
     }
 }
 
@@ -44,15 +49,18 @@ impl Metal {
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> (Vec3, Ray, bool) {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
         let reflected = Vec3::reflect(&r_in.direction(), &rec.normal);
         let scattered = Ray::new(
             rec.p,
             reflected + self.fuzziness * Vec3::random_in_unit_sphere(),
             Some(r_in.time()),
         );
-        let scatter = scattered.direction().dot(rec.normal) > 0.;
-        (self.albedo, scattered, scatter)
+        if scattered.direction().dot(rec.normal) > 0. {
+            Some((self.albedo, scattered))
+        } else {
+            None
+        }
     }
 }
 
@@ -72,7 +80,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> (Vec3, Ray, bool) {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
         let refr_ratio = if rec.front_face {
             1. / self.refr_index
         } else {
@@ -88,10 +96,29 @@ impl Material for Dielectric {
         } else {
             Vec3::refract(&unit_dir, &rec.normal, refr_ratio)
         };
-        (
+
+        Some((
             Vec3::new(1., 1., 1.),
             Ray::new(rec.p, dir, Some(r_in.time())),
-            true,
-        )
+        ))
+    }
+}
+
+pub struct DiffuseLight {
+    emit: Arc<dyn Texture>,
+}
+
+impl DiffuseLight {
+    pub fn new(emit: Arc<dyn Texture>) -> Self {
+        DiffuseLight { emit }
+    }
+}
+
+impl Material for DiffuseLight {
+    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord) -> Option<(Vec3, Ray)> {
+        None
+    }
+    fn emitted(&self, u: f64, v: f64, p: &Vec3) -> Vec3 {
+        self.emit.value(u, v, p)
     }
 }

@@ -9,7 +9,7 @@ Book 1 cover reproduced in 44 minutes on my i7-6500U as of last commit.
 How to run:
 
 ```shell
-cargo run image_name.ppm
+cargo run output_image_name.ppm
 ```
 
 **TODO** (implementation-based, as implementing the rest of the books' features goes without saying):
