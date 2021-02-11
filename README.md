@@ -6,7 +6,7 @@ This is an exercise on raytracing using the resource 'Raytracing in a Weekend' b
 
 ![Cornell smoke](images/cornell_smoke.jpg?raw=true)
 
-[!Book 2: Final scene](images/final_scene.jpg?raw=true)
+![Book 2: Final scene](images/final_scene.jpg?raw=true)
 
 How to run:
 
