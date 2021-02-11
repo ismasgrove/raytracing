@@ -1,4 +1,4 @@
-use image::error::ImageFormatHint;
+use image::{error::ImageFormatHint, imageops::horizontal_gradient, ImageBuffer};
 use material::Lambertian;
 
 use crate::volume::ConstantMedium;

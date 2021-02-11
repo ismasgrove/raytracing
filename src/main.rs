@@ -97,7 +97,7 @@ fn process_scanline<T: Hittable>(
 
 fn main() {
     const NX: i32 = 800;
-    const N_SAMPLES: i32 = 10000;
+    const N_SAMPLES: i32 = 200;
     const MAX_DEPTH: i32 = 50;
     let (cam, world, background) = scenes::final_scene();
     let ny = (NX as f64 / cam.aspect_ratio) as i32;
