@@ -1,3 +1,4 @@
+extern crate image;
 extern crate indicatif;
 extern crate rayon;
 
@@ -28,6 +29,7 @@ mod vec;
 mod volume;
 
 use aabb::AABB;
+use bvh::BVHNode;
 use camera::Camera;
 use hittable::{HitRecord, Hittable, HittableList};
 use instance_transforms::{RotateY, Translate};
@@ -53,11 +55,6 @@ fn color<T: Hittable>(r: &Ray, world: &Arc<T>, background: &Vec3, depth: i32) ->
         }
     } else {
         *background
-        /*
-        let unit_dir = r.direction().normalize();
-        let t = 0.5 * (unit_dir.y() + 1.);
-        (1. - t) * Vec3::new(1., 1., 1.) + t * Vec3::new(0.5, 0.7, 1.0)
-        */
     }
 }
 
@@ -100,9 +97,9 @@ fn process_scanline<T: Hittable>(
 
 fn main() {
     const NX: i32 = 800;
-    const N_SAMPLES: i32 = 400;
-    const MAX_DEPTH: i32 = 400;
-    let (cam, world, background) = scenes::cornell_box();
+    const N_SAMPLES: i32 = 10000;
+    const MAX_DEPTH: i32 = 50;
+    let (cam, world, background) = scenes::final_scene();
     let ny = (NX as f64 / cam.aspect_ratio) as i32;
 
     let args: Vec<String> = env::args().collect();
@@ -155,5 +152,5 @@ fn main() {
 
     let duration = start.elapsed();
 
-    println!("runtime: {} seconds", duration.as_secs());
+    println!("runtime: {:.2} hours", duration.as_secs_f32() / (60. * 60.));
 }

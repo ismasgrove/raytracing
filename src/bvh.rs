@@ -1,64 +1,59 @@
 use super::utils;
 use super::Arc;
 use super::HitRecord;
-use super::Hittable;
 use super::Ray;
 use super::AABB;
-use std::f64;
+use super::{Hittable, HittableList};
+use std::{cmp::Ordering, f64};
 
-/*
-    UNTESTED
-*/
-
-struct BVHNode {
-    node_box: AABB,
+pub struct BVHNode {
+    root_box: AABB,
     left: Arc<dyn Hittable>,
     right: Arc<dyn Hittable>,
 }
 
 impl BVHNode {
-    pub fn new(node_box: AABB, left: Arc<dyn Hittable>, right: Arc<dyn Hittable>) -> Self {
+    fn new(root_box: AABB, left: Arc<dyn Hittable>, right: Arc<dyn Hittable>) -> Self {
         BVHNode {
-            node_box,
+            root_box,
             left,
             right,
         }
     }
-    pub fn construct_tree(
-        mut hittable_list: &mut Vec<Arc<dyn Hittable>>,
-        t0: f64,
-        t1: f64,
-        start: usize,
-        end: usize,
-    ) -> Arc<dyn Hittable> {
+
+    pub fn construct_tree(hitlist: HittableList, t0: f64, t1: f64) -> Arc<dyn Hittable> {
+        assert_ne!(hitlist.len(), 0);
+        let mut objects = hitlist.list().clone();
         let axis = utils::random_int(0, 2);
-        let size = hittable_list.len();
-        let (right, left) = match hittable_list.len() {
-            1 => (hittable_list[start].clone(), hittable_list[start].clone()),
+
+        let comp_fn = match axis {
+            0 => Self::comparator_x,
+            1 => Self::comparator_y,
+            2 => Self::comparator_z,
+            _ => panic!("axis out of bounds"),
+        };
+
+        let start = 0;
+
+        let (right, left) = match objects.len() {
+            1 => (objects[start].clone(), objects[start].clone()),
             2 => {
-                //comparator
-                (
-                    hittable_list[start].clone(),
-                    hittable_list[start + 1].clone(),
-                )
+                assert_eq!(start, 0);
+                if comp_fn(&objects[start], &objects[start + 1]) == Ordering::Less {
+                    (objects[start].clone(), objects[start + 1].clone())
+                } else {
+                    (objects[start + 1].clone(), objects[start].clone())
+                }
             }
             _ => {
-                hittable_list.sort_by(|a, b| {
-                    let box_a = a.bounding_box(0., 0.);
-                    let box_b = b.bounding_box(0., 0.);
-                    match (box_a, box_b) {
-                        (Some(ba), Some(bb)) => ba
-                            .min()
-                            .index(axis)
-                            .partial_cmp(&bb.min().index(axis))
-                            .unwrap(),
-                        (_, _) => panic!("no bounding boxes"),
-                    }
-                });
-                let mid = start + size / 2;
+                objects.sort_by(comp_fn);
+                let mid = start + objects.len() / 2;
+                let objects_split = objects.split_off(mid);
+                let (hitlist_left, hitlist_right) =
+                    (HittableList::new(objects), HittableList::new(objects_split));
                 (
-                    BVHNode::construct_tree(&mut hittable_list, t0, t1, start, mid),
-                    BVHNode::construct_tree(&mut hittable_list, t0, t1, mid, end),
+                    BVHNode::construct_tree(hitlist_left, t0, t1),
+                    BVHNode::construct_tree(hitlist_right, t0, t1),
                 )
             }
         };
@@ -72,13 +67,45 @@ impl BVHNode {
             right,
         ))
     }
+
+    fn comparator(axis: i32, a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> Ordering {
+        let (box_a, box_b) = (a.bounding_box(0., 0.), b.bounding_box(0., 0.));
+
+        assert_eq!(true, box_a.is_some());
+        assert_eq!(true, box_b.is_some());
+
+        box_a.unwrap().min()[axis as usize]
+            .partial_cmp(&box_b.unwrap().min()[axis as usize])
+            .unwrap()
+    }
+    fn comparator_x(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> Ordering {
+        Self::comparator(0, a, b)
+    }
+    fn comparator_y(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> Ordering {
+        Self::comparator(1, a, b)
+    }
+    fn comparator_z(a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>) -> Ordering {
+        Self::comparator(2, a, b)
+    }
 }
 
 impl Hittable for BVHNode {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        if self.node_box.hit(r, t_min, t_max) {
+        /*println!(
+            "min: {} {} {} max: {} {} {}",
+            self.root_box.min().x(),
+            self.root_box.min().y(),
+            self.root_box.min().z(),
+            self.root_box.max().x(),
+            self.root_box.max().y(),
+            self.root_box.max().z(),
+        );*/
+
+        if !self.root_box.hit(r, t_min, t_max) {
             return None;
         }
+
+        //println!("im in");
 
         let hit_left = self.left.hit(&r, t_min, t_max);
         let hit_right = self.right.hit(&r, t_min, t_max);
@@ -97,6 +124,6 @@ impl Hittable for BVHNode {
         }
     }
     fn bounding_box(&self, _t0: f64, _t1: f64) -> Option<AABB> {
-        Some(self.node_box)
+        Some(self.root_box)
     }
 }

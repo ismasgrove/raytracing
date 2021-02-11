@@ -1,4 +1,5 @@
 use super::{material::Material, Ray, Vec3, AABB};
+use std::ops::{Index, IndexMut};
 use std::sync::Arc;
 
 pub trait Hittable: Sync + Send {
@@ -57,10 +58,27 @@ impl HittableList {
     pub fn list(&self) -> &Vec<Arc<dyn Hittable>> {
         &self.list
     }
+    pub fn len(&self) -> usize {
+        self.list.len()
+    }
+}
+
+impl Index<usize> for HittableList {
+    type Output = Arc<dyn Hittable>;
+    fn index(&self, i: usize) -> &Arc<dyn Hittable> {
+        &self.list[i]
+    }
+}
+
+impl IndexMut<usize> for HittableList {
+    fn index_mut(&mut self, i: usize) -> &mut Arc<dyn Hittable> {
+        &mut self.list[i]
+    }
 }
 
 impl Hittable for HittableList {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        /* */
         let mut rec = None;
         let mut closest_so_far = t_max;
         for item in self.list.iter() {
@@ -83,7 +101,7 @@ impl Hittable for HittableList {
             let mut accumulating_box = temp;
             for item in &self.list[1..] {
                 if let Some(other_box) = item.bounding_box(t0, t1) {
-                    accumulating_box = AABB::surrounding_box(accumulating_box, other_box);
+                    accumulating_box = AABB::surrounding_box(other_box, accumulating_box);
                 }
             }
             Some(accumulating_box)

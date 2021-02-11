@@ -7,11 +7,11 @@ pub struct ConstantMedium {
 }
 
 impl ConstantMedium {
-    pub fn new(density: f64, boundary: Arc<dyn Hittable>, phase_fn: Arc<dyn Material>) -> Self {
+    pub fn new(density: f64, boundary: Arc<dyn Hittable>, tex: Arc<dyn Texture>) -> Self {
         ConstantMedium {
             neg_inv_density: -1. / density,
             boundary,
-            phase_fn,
+            phase_fn: Arc::new(Isotropic::new(tex)),
         }
     }
 }
@@ -20,7 +20,7 @@ impl Hittable for ConstantMedium {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         if let Some(mut hit1) = self
             .boundary
-            .hit(r, std::f64::NEG_INFINITY, std::f64::NEG_INFINITY)
+            .hit(r, std::f64::NEG_INFINITY, std::f64::INFINITY)
         {
             if let Some(mut hit2) = self.boundary.hit(r, hit1.t + 0.0001, std::f64::INFINITY) {
                 //some clamping
@@ -50,8 +50,12 @@ impl Hittable for ConstantMedium {
                 let t = hit1.t + hit_distance / ray_length;
                 Some(HitRecord::new(
                     t,
-                    hit1.u,
-                    hit1.v,
+                    /*
+                        these (u,v) coordinates will be ignored since I'm using a Solid texture
+                        need to test how it behaves under other texture types
+                    */
+                    hit2.u,
+                    hit2.v,
                     r.point(t),
                     Vec3::new(1., 0., 0.),
                     r,
@@ -71,6 +75,12 @@ impl Hittable for ConstantMedium {
 
 pub struct Isotropic {
     albedo: Arc<dyn Texture>,
+}
+
+impl Isotropic {
+    pub fn new(albedo: Arc<dyn Texture>) -> Self {
+        Isotropic { albedo }
+    }
 }
 
 impl Material for Isotropic {
