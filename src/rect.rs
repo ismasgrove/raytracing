@@ -115,12 +115,12 @@ impl Hittable for YZRect {
 }
 
 pub struct XZRect {
-    x0: f64,
-    x1: f64,
-    z0: f64,
-    z1: f64,
-    k: f64,
-    material: Arc<dyn Material>,
+    pub x0: f64,
+    pub x1: f64,
+    pub z0: f64,
+    pub z1: f64,
+    pub k: f64,
+    pub material: Arc<dyn Material>,
 }
 
 impl XZRect {
@@ -172,8 +172,6 @@ impl Hittable for XZRect {
 }
 
 pub struct Cuboid {
-    p0: Vec3,
-    p1: Vec3,
     sides: HittableList,
 }
 
@@ -230,7 +228,7 @@ impl Cuboid {
             )),
         ]);
 
-        Cuboid { p0, p1, sides }
+        Cuboid { sides }
     }
 }
 

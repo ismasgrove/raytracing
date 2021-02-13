@@ -1,12 +1,14 @@
 # YARIBOPSS
 
-This is an exercise on raytracing using the resource 'Raytracing in a Weekend' book series from Peter Shirley, who somewhat of a legend in the field. I decided to do it in Rust so as to not feel as if I'm just copying code ong things without understanding them, which happens when you're doing something from a book or a tutorial. I added the parallel element (using rayon) for the same reason (in addition to my aging laptop making sequential debugging awfully time consuming), and will generally try to add as many personal touches as I can.
+This is an exercise on raytracing using the resource 'Raytracing in a Weekend' book series from Peter Shirley, who's somewhat of a legend in the field. I decided to do it in Rust so as to not feel as if I'm just copying code without understanding it, which happens when you're doing something from a book or a tutorial. I added the parallel element (using rayon) for the same reason (in addition to my aging laptop making sequential debugging awfully time consuming), and will generally try to add as many personal touches as I can.
 
 ![Random scene](images/book1_cover.jpg?raw=true)
 
 ![Cornell smoke](images/cornell_smoke.jpg?raw=true)
 
 ![Book 2: Final scene](images/final_scene.jpg?raw=true)
+
+![XZ Pyramid](images/xz_pyramid.jpg?raw=true)
 
 How to run:
 
@@ -21,3 +23,9 @@ cargo run output_image_name.ppm
 3. ~~An indication on rendering progress during runtime.~~ done
 4. Figure out the proper way to I imports, mods and crates in Rust as it looks rather unseemly.
 5. Include more shapes (Currently eyeing teapots, infinite planes, non-axis aligned planes and boxes)
+
+Resources:
+
+1. RTIOW (obviously)
+2. Scratchapixel (amazing website)
+3. Frequently surfed Shadertoy for inspiration

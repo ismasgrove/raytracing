@@ -50,10 +50,6 @@ impl Hittable for ConstantMedium {
                 let t = hit1.t + hit_distance / ray_length;
                 Some(HitRecord::new(
                     t,
-                    /*
-                        these (u,v) coordinates will be ignored since I'm using a Solid texture
-                        need to test how it behaves under other texture types
-                    */
                     hit2.u,
                     hit2.v,
                     r.point(t),

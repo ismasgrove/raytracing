@@ -95,7 +95,7 @@ impl Hittable for RotateY {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let (mut origin, mut direction) = (r.origin(), r.direction());
         /*
-        this code is redundant and needs cleaning up
+        todo: cleanup this part
         */
         origin[0] = self.cos_theta * r.origin()[0] - self.sin_theta * r.origin()[2];
         origin[2] = self.sin_theta * r.origin()[0] + self.cos_theta * r.origin()[2];
@@ -122,7 +122,7 @@ impl Hittable for RotateY {
             None
         }
     }
-    fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _t0: f64, _t1: f64) -> Option<AABB> {
         self.bbox
     }
 }

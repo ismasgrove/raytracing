@@ -107,7 +107,7 @@ impl Perlin {
         const DEPTH: i32 = 7;
         let (mut accumulator, mut weight) = (0., 1.);
         let mut p_mut_copy = *p;
-        for i in 0..DEPTH {
+        for _ in 0..DEPTH {
             accumulator += weight * self.generate_noise(&p_mut_copy);
             weight *= 0.5;
             p_mut_copy *= 2.;

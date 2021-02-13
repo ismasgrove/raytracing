@@ -1,11 +1,10 @@
-use image::{error::ImageFormatHint, imageops::horizontal_gradient, ImageBuffer};
-use material::Lambertian;
+use material::{Dielectric, Lambertian, Material};
 
 use crate::volume::ConstantMedium;
 
 use super::{
-    material, texture, utils, Arc, BVHNode, Camera, Cuboid, Hittable, HittableList, MovingSphere,
-    RotateY, Sphere, Translate, Vec3, XYRect, XZRect, YZRect,
+    material, texture, utils, Arc, BVHNode, Camera, Cuboid, HittableList, MovingSphere, Pyramid,
+    RotateY, Sphere, Translate, Triangle, Vec3, XYRect, XZRect, YZRect,
 };
 
 pub fn random_scene() -> (Camera, Arc<HittableList>, Vec3) {
@@ -175,12 +174,23 @@ pub fn two_perlin_spheres() -> (Camera, Arc<HittableList>, Vec3) {
 
 pub fn globe() -> (Camera, Arc<HittableList>, Vec3) {
     let mut objects = HittableList::new(vec![]);
-    let globetext = texture::ImageTexture::new("earthmap.jpg");
+    let globetex = texture::ImageTexture::new("earthmap.jpg");
     objects.add(Arc::new(Sphere {
         center: Vec3::new(0., 0., 0.),
         radius: 2.,
-        material: Arc::new(material::Lambertian::textured(Arc::new(globetext))),
+        material: Arc::new(material::Lambertian::textured(Arc::new(globetex))),
     }));
+
+    /*
+    objects.add(Arc::new(Triangle::new(
+        [
+            Vec3::new(200., -300., 0.),
+            Vec3::new(-200., -300., 0.),
+            Vec3::new(0., 600., 0.),
+        ],
+        Arc::new(material::Lambertian::textured(Arc::new(globetex))),
+    )));
+    */
 
     let lookfrom = Vec3::new(13., 2., 3.);
     let lookat = Vec3::new(0., 0., 0.);
@@ -265,9 +275,24 @@ pub fn cornell_box() -> (Camera, Arc<HittableList>, Vec3) {
         texture::Solid::color_vec3(Vec3::new(20., 20., 20.)),
     )));
 
-    objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 555., green)));
+    objects.add(Arc::new(YZRect::new(
+        0.,
+        555.,
+        0.,
+        555.,
+        555.,
+        green.clone(),
+    )));
     objects.add(Arc::new(YZRect::new(0., 555., 0., 555., 0., red)));
-    objects.add(Arc::new(XZRect::new(213., 343., 227., 332., 554., light)));
+    objects.add(Arc::new(XZRect::new(
+        213.,
+        343.,
+        227.,
+        332.,
+        554.,
+        light.clone(),
+    )));
+
     objects.add(Arc::new(XZRect::new(0., 555., 0., 555., 0., white.clone())));
     objects.add(Arc::new(XZRect::new(
         0.,
@@ -285,6 +310,35 @@ pub fn cornell_box() -> (Camera, Arc<HittableList>, Vec3) {
         555.,
         white.clone(),
     )));
+
+    let base = XZRect::new(
+        213.,
+        343.,
+        227.,
+        332.,
+        554.,
+        Arc::new(material::Metal::new(Vec3::new(0.1, 0.3, 0.7), 4.)),
+    );
+    let pyramid = Arc::new(Pyramid::new(base, Vec3::new(287., 450., 279.5)));
+
+    let pyramid = Arc::new(Translate::new(pyramid, Vec3::new(-135., -200., 50.)));
+
+    objects.add(pyramid);
+
+    let base = XZRect::new(
+        213.,
+        343.,
+        227.,
+        332.,
+        554.,
+        Arc::new(material::Metal::new(Vec3::new(0.1, 0.3, 0.7), 4.)),
+    );
+
+    let pyramid = Arc::new(Pyramid::new(base, Vec3::new(287., 658., 279.5)));
+
+    let pyramid = Arc::new(Translate::new(pyramid, Vec3::new(-135., -200., 50.)));
+
+    objects.add(pyramid);
 
     let cuboid1 = Arc::new(Cuboid::new(
         Vec3::new(0., 0., 0.),

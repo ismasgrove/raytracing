@@ -19,11 +19,13 @@ mod instance_transforms;
 mod material;
 mod perlin;
 mod pixel;
+mod pyramid;
 mod ray;
 mod rect;
 mod scenes;
 mod sphere;
 mod texture;
+mod triangle;
 mod utils;
 mod vec;
 mod volume;
@@ -36,10 +38,12 @@ use instance_transforms::{RotateY, Translate};
 use material::Material;
 use perlin::Perlin;
 use pixel::Pixel;
+use pyramid::Pyramid;
 use ray::Ray;
 use rect::{Cuboid, XYRect, XZRect, YZRect};
 use sphere::{MovingSphere, Sphere};
 use texture::Texture;
+use triangle::Triangle;
 use vec::Vec3;
 
 fn color<T: Hittable>(r: &Ray, world: &Arc<T>, background: &Vec3, depth: i32) -> Vec3 {
@@ -97,9 +101,9 @@ fn process_scanline<T: Hittable>(
 
 fn main() {
     const NX: i32 = 800;
-    const N_SAMPLES: i32 = 200;
+    const N_SAMPLES: i32 = 400;
     const MAX_DEPTH: i32 = 50;
-    let (cam, world, background) = scenes::final_scene();
+    let (cam, world, background) = scenes::cornell_box();
     let ny = (NX as f64 / cam.aspect_ratio) as i32;
 
     let args: Vec<String> = env::args().collect();

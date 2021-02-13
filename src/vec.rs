@@ -1,5 +1,3 @@
-use utils::random_from_range;
-
 use super::utils;
 use std::ops;
 
