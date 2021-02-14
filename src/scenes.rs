@@ -312,31 +312,34 @@ pub fn cornell_box() -> (Camera, Arc<HittableList>, Vec3) {
     )));
 
     let base = XZRect::new(
-        213.,
-        343.,
-        227.,
-        332.,
-        554.,
+        -75.,
+        75.,
+        -75.,
+        75.,
+        0.,
         Arc::new(material::Metal::new(Vec3::new(0.1, 0.3, 0.7), 4.)),
     );
-    let pyramid = Arc::new(Pyramid::new(base, Vec3::new(287., 450., 279.5)));
+    let pyramid = Arc::new(Pyramid::new(base, Vec3::new(0., 150., 0.)));
 
-    let pyramid = Arc::new(Translate::new(pyramid, Vec3::new(-135., -200., 50.)));
+    let pyramid = Arc::new(RotateY::new(pyramid, -25.));
+
+    let pyramid = Arc::new(Translate::new(pyramid, Vec3::new(140., -200. + 554., 400.)));
 
     objects.add(pyramid);
 
     let base = XZRect::new(
-        213.,
-        343.,
-        227.,
-        332.,
-        554.,
+        -75.,
+        75.,
+        -75.,
+        75.,
+        0.,
         Arc::new(material::Metal::new(Vec3::new(0.1, 0.3, 0.7), 4.)),
     );
+    let pyramid = Arc::new(Pyramid::new(base, Vec3::new(0., -150., 0.)));
 
-    let pyramid = Arc::new(Pyramid::new(base, Vec3::new(287., 658., 279.5)));
+    let pyramid = Arc::new(RotateY::new(pyramid, -25.));
 
-    let pyramid = Arc::new(Translate::new(pyramid, Vec3::new(-135., -200., 50.)));
+    let pyramid = Arc::new(Translate::new(pyramid, Vec3::new(140., -200. + 554., 400.)));
 
     objects.add(pyramid);
 
@@ -357,7 +360,7 @@ pub fn cornell_box() -> (Camera, Arc<HittableList>, Vec3) {
     ));
 
     let cuboid2 = Arc::new(RotateY::new(cuboid2, -18.));
-    let cuboid2 = Arc::new(Translate::new(cuboid2, Vec3::new(130., 0., 65.)));
+    let cuboid2 = Arc::new(Translate::new(cuboid2, Vec3::new(140., 0., 65.)));
     objects.add(cuboid2);
 
     (cam, Arc::new(objects), background)

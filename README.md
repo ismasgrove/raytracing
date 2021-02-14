@@ -8,7 +8,7 @@ This is an exercise on raytracing using the resource 'Raytracing in a Weekend' b
 
 ![Book 2: Final scene](images/final_scene.jpg?raw=true)
 
-![XZ Pyramid](images/xz_pyramid.jpg?raw=true)
+![XZPyramid](images/rotate_pyramid.jpg?raw=true)
 
 How to run:
 

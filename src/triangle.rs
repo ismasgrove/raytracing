@@ -10,6 +10,7 @@ impl Triangle {
     pub fn new(vertices: [Vec3; 3], material: Arc<dyn Material>) -> Self {
         Triangle { vertices, material }
     }
+
     fn barycentric(p: Vec3, vertices: [Vec3; 3]) -> (f64, f64) {
         /*
             barycentric lerp
@@ -91,6 +92,28 @@ impl Hittable for Triangle {
         }
     }
     fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
-        None
+        let max_x = self.vertices[0]
+            .x()
+            .max(self.vertices[1].x().max(self.vertices[2].x()));
+        let max_y = self.vertices[0]
+            .y()
+            .max(self.vertices[1].y().max(self.vertices[2].y()));
+        let max_z = self.vertices[0]
+            .z()
+            .max(self.vertices[1].z().max(self.vertices[2].z()));
+        let min_x = self.vertices[0]
+            .x()
+            .min(self.vertices[1].x().min(self.vertices[2].x()));
+        let min_y = self.vertices[0]
+            .y()
+            .min(self.vertices[1].y().min(self.vertices[2].y()));
+        let min_z = self.vertices[0]
+            .z()
+            .min(self.vertices[1].z().min(self.vertices[2].z()));
+
+        Some(AABB::new(
+            Vec3::new(min_x, min_y, min_z),
+            Vec3::new(max_x, max_y, max_z),
+        ))
     }
 }
