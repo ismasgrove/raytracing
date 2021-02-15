@@ -1,19 +1,19 @@
-use super::{Ray, Vec3};
+use super::{Position, Ray};
 
 #[derive(Copy, Clone)]
 pub struct AABB {
-    min: Vec3,
-    max: Vec3,
+    min: Position,
+    max: Position,
 }
 
 impl AABB {
-    pub fn new(min: Vec3, max: Vec3) -> Self {
+    pub fn new(min: Position, max: Position) -> Self {
         AABB { min, max }
     }
-    pub fn min(&self) -> Vec3 {
+    pub fn min(&self) -> Position {
         self.min
     }
-    pub fn max(&self) -> Vec3 {
+    pub fn max(&self) -> Position {
         self.max
     }
     pub fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> bool {
@@ -45,13 +45,13 @@ impl AABB {
     }
 
     pub fn surrounding_box(box0: AABB, box1: AABB) -> Self {
-        let small = Vec3::new(
+        let small = Position::new(
             box0.min().x().min(box1.min().x()),
             box0.min().y().min(box1.min().y()),
             box0.min().z().min(box1.min().z()),
         );
 
-        let big = Vec3::new(
+        let big = Position::new(
             box0.max().x().max(box1.max().x()),
             box0.max().y().max(box1.max().y()),
             box0.max().z().max(box1.max().z()),

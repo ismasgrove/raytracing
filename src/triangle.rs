@@ -16,27 +16,27 @@ impl Triangle {
             barycentric lerp
         */
 
-        let upper_A_term = (vertices[1].y() - vertices[2].y()) * (p.x() - vertices[2].x())
+        let upper_a_term = (vertices[1].y() - vertices[2].y()) * (p.x() - vertices[2].x())
             + (vertices[2].x() - vertices[1].x()) * (p.y() - vertices[2].y());
-        let lower_A_term = (vertices[1].y() - vertices[2].y())
+        let lower_a_term = (vertices[1].y() - vertices[2].y())
             * (vertices[0].x() - vertices[2].x())
             + (vertices[2].x() - vertices[1].x()) * (vertices[0].y() - vertices[2].y());
 
-        let bary_A = upper_A_term / lower_A_term;
+        let bary_a = upper_a_term / lower_a_term;
 
-        let upper_B_term = (vertices[2].y() - vertices[0].y()) * (p.x() - vertices[2].x())
+        let upper_b_term = (vertices[2].y() - vertices[0].y()) * (p.x() - vertices[2].x())
             + (vertices[0].x() - vertices[2].x()) * (p.y() - vertices[2].y());
-        let lower_B_term = (vertices[1].y() - vertices[2].y())
+        let lower_b_term = (vertices[1].y() - vertices[2].y())
             * (vertices[0].x() - vertices[2].x())
             + (vertices[2].x() - vertices[1].x()) * (vertices[0].y() - vertices[2].y());
 
-        let bary_B = upper_B_term / lower_B_term;
+        let bary_b = upper_b_term / lower_b_term;
 
-        let bary_C = 1. - bary_A - bary_B;
+        let bary_c = 1. - bary_a - bary_b;
 
         let (u, v) = (
-            bary_A * vertices[0].x() + bary_B * vertices[1].x() + bary_C * vertices[2].x(),
-            bary_A * vertices[0].y() + bary_B * vertices[1].y() + bary_C * vertices[2].y(),
+            bary_a * vertices[0].x() + bary_b * vertices[1].x() + bary_c * vertices[2].x(),
+            bary_a * vertices[0].y() + bary_b * vertices[1].y() + bary_c * vertices[2].y(),
         );
 
         (u, v)
@@ -91,7 +91,7 @@ impl Hittable for Triangle {
             None
         }
     }
-    fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
+    fn bounding_box(&self, _t0: f64, _t1: f64) -> Option<AABB> {
         let max_x = self.vertices[0]
             .x()
             .max(self.vertices[1].x().max(self.vertices[2].x()));

@@ -1,14 +1,14 @@
 use std::f64;
 
-use super::{utils, Arc, HitRecord, Hittable, Ray, Vec3, AABB};
+use super::{utils, Arc, Direction, HitRecord, Hittable, Ray, Vec3, AABB};
 
 pub struct Translate {
     object: Arc<dyn Hittable>,
-    offset: Vec3,
+    offset: Direction,
 }
 
 impl Translate {
-    pub fn new(object: Arc<dyn Hittable>, offset: Vec3) -> Self {
+    pub fn new(object: Arc<dyn Hittable>, offset: Direction) -> Self {
         Translate { object, offset }
     }
 }

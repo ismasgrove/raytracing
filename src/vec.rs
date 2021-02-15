@@ -6,6 +6,15 @@ pub struct Vec3 {
     e: [f64; 3],
 }
 
+/*
+    Type aliases, to better differentiate between the variety of Vec3 types throughout the code
+    TODO: make Vec3 private, replace with aliases accordingly
+*/
+
+pub type Color = Vec3;
+pub type Position = Vec3;
+pub type Direction = Vec3;
+
 impl Vec3 {
     pub fn new(x: f64, y: f64, z: f64) -> Self {
         Self { e: [x, y, z] }
@@ -152,6 +161,14 @@ impl Vec3 {
 
     pub fn abs(&self) -> Self {
         Vec3::new(self.x().abs(), self.x().abs(), self.x().abs())
+    }
+
+    pub fn into_bytes(&self, n_samples: i32) -> [u8; 3] {
+        let scale = 1. / n_samples as f64;
+        let r = (255.99 * utils::clamp((self.r() * scale).sqrt(), 0., 0.999)) as u8;
+        let g = (255.99 * utils::clamp((self.g() * scale).sqrt(), 0., 0.999)) as u8;
+        let b = (255.99 * utils::clamp((self.b() * scale).sqrt(), 0., 0.999)) as u8;
+        [r, g, b]
     }
 }
 

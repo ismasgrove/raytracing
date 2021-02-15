@@ -91,21 +91,9 @@ impl BVHNode {
 
 impl Hittable for BVHNode {
     fn hit(&self, r: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        /*println!(
-            "min: {} {} {} max: {} {} {}",
-            self.root_box.min().x(),
-            self.root_box.min().y(),
-            self.root_box.min().z(),
-            self.root_box.max().x(),
-            self.root_box.max().y(),
-            self.root_box.max().z(),
-        );*/
-
         if !self.root_box.hit(r, t_min, t_max) {
             return None;
         }
-
-        //println!("im in");
 
         let hit_left = self.left.hit(&r, t_min, t_max);
         let hit_right = self.right.hit(&r, t_min, t_max);

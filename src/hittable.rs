@@ -1,4 +1,4 @@
-use super::{material::Material, Ray, Vec3, AABB};
+use super::{material::Material, Direction, Position, Ray, AABB};
 use std::ops::{Index, IndexMut};
 use std::sync::Arc;
 
@@ -11,8 +11,8 @@ pub struct HitRecord {
     pub t: f64,
     pub u: f64,
     pub v: f64,
-    pub p: Vec3,
-    pub normal: Vec3,
+    pub p: Position,
+    pub normal: Direction,
     pub front_face: bool,
     pub material: Arc<dyn Material>,
 }
@@ -22,8 +22,8 @@ impl HitRecord {
         t: f64,
         u: f64,
         v: f64,
-        p: Vec3,
-        outward_normal: Vec3,
+        p: Position,
+        outward_normal: Direction,
         r: &Ray,
         material: &Arc<dyn Material>,
     ) -> Self {

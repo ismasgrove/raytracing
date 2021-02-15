@@ -10,18 +10,21 @@ This is an exercise on raytracing using the resource 'Raytracing in a Weekend' b
 
 ![XZPyramid](images/rotate_pyramid.jpg?raw=true)
 
-How to run:
-
 ```shell
-cargo run output_image_name.ppm
+cargo run image_name.jpg
+cargo run image_name.jpeg
+cargo run image_name.tiff
+cargo run image_name.ico
+cargo run image_name.bmp
+cargo run image_name.png
 ```
 
 **TODO** (implementation-based, as implementing the rest of the books' features goes without saying):
 
 1. Investigate GPU-acceleration.
-2. Use 'image' crate to generate different formats on demand, from the command line, without resorting to image conversion.
+2. ~~Use 'image' crate to generate different formats on demand, from the command line, without resorting to image conversion.~~ done
 3. ~~An indication on rendering progress during runtime.~~ done
-4. Figure out the proper way to I imports, mods and crates in Rust as it looks rather unseemly.
+4. Figure out the proper way to use imports, mods and crates in Rust as it looks rather unseemly.
 5. Include more shapes (Currently eyeing teapots, infinite planes, non-axis aligned planes and boxes)
 
 Resources:
@@ -29,3 +32,4 @@ Resources:
 1. RTIOW (obviously)
 2. Scratchapixel (amazing website)
 3. Frequently surfed Shadertoy for inspiration
+4. The Ray Tracer Challenge (namely, the free bonus chapters on bounding boxes)

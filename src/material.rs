@@ -1,8 +1,8 @@
-use super::{texture, utils, Arc, HitRecord, Ray, Texture, Vec3};
+use super::{texture, utils, Arc, Color, HitRecord, Position, Ray, Texture, Vec3};
 
 pub trait Material: Send + Sync {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)>;
-    fn emitted(&self, _u: f64, _v: f64, _p: &Vec3) -> Vec3 {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)>;
+    fn emitted(&self, _u: f64, _v: f64, _p: &Vec3) -> Color {
         Vec3::new(0., 0., 0.)
     }
 }
@@ -12,7 +12,7 @@ pub struct Lambertian {
 }
 
 impl Lambertian {
-    pub fn new(col: Vec3) -> Self {
+    pub fn new(col: Color) -> Self {
         Lambertian {
             albedo: Arc::new(texture::Solid::color_vec3(col)),
         }
@@ -23,7 +23,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
         let mut scatter_direction = rec.normal + Vec3::random_unit_vector();
 
         if scatter_direction.near_zero() {
@@ -38,18 +38,18 @@ impl Material for Lambertian {
 }
 
 pub struct Metal {
-    albedo: Vec3,
+    albedo: Color,
     fuzziness: f64,
 }
 
 impl Metal {
-    pub fn new(albedo: Vec3, fuzziness: f64) -> Self {
+    pub fn new(albedo: Color, fuzziness: f64) -> Self {
         Metal { albedo, fuzziness }
     }
 }
 
 impl Material for Metal {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
         let reflected = Vec3::reflect(&r_in.direction().normalize(), &rec.normal);
         let scattered = Ray::new(
             rec.p,
@@ -80,7 +80,7 @@ impl Dielectric {
 }
 
 impl Material for Dielectric {
-    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Vec3, Ray)> {
+    fn scatter(&self, r_in: &Ray, rec: &HitRecord) -> Option<(Color, Ray)> {
         let refr_ratio = if rec.front_face {
             1. / self.refr_index
         } else {
@@ -115,10 +115,10 @@ impl DiffuseLight {
 }
 
 impl Material for DiffuseLight {
-    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord) -> Option<(Vec3, Ray)> {
+    fn scatter(&self, _r_in: &Ray, _rec: &HitRecord) -> Option<(Color, Ray)> {
         None
     }
-    fn emitted(&self, u: f64, v: f64, p: &Vec3) -> Vec3 {
+    fn emitted(&self, u: f64, v: f64, p: &Position) -> Color {
         self.emit.value(u, v, p)
     }
 }

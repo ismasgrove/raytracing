@@ -1,8 +1,8 @@
-use super::Vec3;
+use super::{Direction, Position, Vec3};
 
 pub struct Ray {
-    a: Vec3,
-    b: Vec3,
+    a: Position,
+    b: Position,
     time: f64,
 }
 
@@ -15,15 +15,15 @@ impl Ray {
         }
     }
 
-    pub fn origin(&self) -> Vec3 {
+    pub fn origin(&self) -> Position {
         self.a
     }
 
-    pub fn direction(&self) -> Vec3 {
+    pub fn direction(&self) -> Direction {
         self.b
     }
 
-    pub fn point(&self, t: f64) -> Vec3 {
+    pub fn point(&self, t: f64) -> Position {
         self.a + t * self.b
     }
 
