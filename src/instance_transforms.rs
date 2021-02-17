@@ -97,6 +97,7 @@ impl Hittable for RotateY {
         /*
         todo: cleanup this part
         */
+
         origin[0] = self.cos_theta * r.origin()[0] - self.sin_theta * r.origin()[2];
         origin[2] = self.sin_theta * r.origin()[0] + self.cos_theta * r.origin()[2];
         direction[0] = self.cos_theta * r.direction()[0] - self.sin_theta * r.direction()[2];

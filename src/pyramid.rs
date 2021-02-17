@@ -10,7 +10,6 @@ pub struct Pyramid {
     I want to eventually look into whether I can generalize the XZ/YZ/XY modules into one structure
     For ease of use, mostly. The other option is to rely on rotation instances.
     But that's another matter I want to look at as well, as RotateX and RotateZ aren't yet implemented
-    and since bounding_box isn't implemented for the Triangle module yet. it can't be used on any of its composites (at the moment, only pyramid)
     we'll see
 */
 

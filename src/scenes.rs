@@ -3,8 +3,8 @@ use material::{Dielectric, Lambertian, Material};
 use crate::volume::ConstantMedium;
 
 use super::{
-    material, texture, utils, Arc, BVHNode, Camera, Cuboid, HittableList, MovingSphere, Pyramid,
-    RotateY, Sphere, Translate, Triangle, Vec3, XYRect, XZRect, YZRect,
+    material, texture, utils, Arc, BVHNode, Camera, Cuboid, HittableList, MovingSphere, Plane,
+    Pyramid, RotateY, Sphere, Translate, Triangle, Vec3, XYRect, XZRect, YZRect,
 };
 
 pub fn random_scene() -> (Camera, Arc<HittableList>, Vec3) {
@@ -99,6 +99,7 @@ pub fn random_scene() -> (Camera, Arc<HittableList>, Vec3) {
 
 pub fn two_spheres() -> (Camera, Arc<HittableList>, Vec3) {
     let mut objects = HittableList::new(vec![]);
+
     let checker = Arc::new(texture::Checker::from_vec3(
         Vec3::new(0.2, 0.3, 0.1),
         Vec3::new(0.9, 0.9, 0.9),
@@ -139,15 +140,15 @@ pub fn two_spheres() -> (Camera, Arc<HittableList>, Vec3) {
 
 pub fn two_perlin_spheres() -> (Camera, Arc<HittableList>, Vec3) {
     let mut objects = HittableList::new(vec![]);
+    /*
+        let pertext = texture::Noise::new(4.);
 
-    let pertext = texture::Noise::new(4.);
-
-    objects.add(Arc::new(Sphere {
-        center: Vec3::new(0., -1000., 0.),
-        radius: 1000.,
-        material: Arc::new(material::Lambertian::textured(Arc::new(pertext))),
-    }));
-
+        objects.add(Arc::new(Sphere {
+            center: Vec3::new(0., -1000., 0.),
+            radius: 1000.,
+            material: Arc::new(material::Lambertian::textured(Arc::new(pertext))),
+        }));
+    */
     let pertext = texture::Noise::new(4.);
 
     objects.add(Arc::new(Sphere {
@@ -155,6 +156,15 @@ pub fn two_perlin_spheres() -> (Camera, Arc<HittableList>, Vec3) {
         radius: 2.,
         material: Arc::new(material::Lambertian::textured(Arc::new(pertext))),
     }));
+
+    objects.add(Arc::new(Plane::new(
+        Vec3::new(3., 0., -5.),
+        Vec3::new(0., 1., 0.),
+        Arc::new(material::Lambertian::textured(Arc::new(
+            texture::Noise::new(4.),
+        ))),
+    )));
+
     let lookfrom = Vec3::new(13., 2., 3.);
     let lookat = Vec3::new(0., 0., 0.);
     let cam = Camera::new(

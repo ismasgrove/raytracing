@@ -4,6 +4,7 @@ extern crate rayon;
 
 use indicatif::ParallelProgressIterator;
 use rayon::prelude::*;
+use scenes::two_perlin_spheres;
 use std::f64;
 use std::sync::Arc;
 use std::time::Instant;
@@ -33,10 +34,11 @@ use aabb::AABB;
 use bvh::BVHNode;
 use camera::Camera;
 use hittable::{HitRecord, Hittable, HittableList};
-use image::{codecs, imageops, ImageFormat, Rgb, RgbImage};
+use image::{imageops, ImageFormat, Rgb, RgbImage};
 use instance_transforms::{RotateY, Translate};
 use material::Material;
 use perlin::Perlin;
+use plane::Plane;
 use pyramid::Pyramid;
 use ray::Ray;
 use rect::{Cuboid, XYRect, XZRect, YZRect};
@@ -60,18 +62,6 @@ fn color<T: Hittable>(r: &Ray, world: &Arc<T>, background: &Color, depth: i32) -
         *background
     }
 }
-
-/*
-    In order to make the image crate function with Rayon using my old technique I had two options
-    1. to use a mutex
-    2. to use an unsafe block
-
-    rust compiler tries to enforce thread safety in such a manner. But in an application as highly parallelizable as raytracing
-    mutexes might be a bit of an unnecessary overhead. since our shared resource, in this case, is an image, and each write operation will occur in a single index
-    as in, there shouldn't be any interference between our threads here.
-
-    I implemented the mutex anyways, but I need to confirm this thesis of mine eventually, and perhaps look at alternatives.
-*/
 
 fn raytrace<T: Hittable>(
     n_samples: i32,
@@ -105,11 +95,11 @@ fn raytrace<T: Hittable>(
 }
 
 fn main() {
-    let (cam, world, background) = scenes::cornell_smoke();
+    let (cam, world, background) = scenes::two_perlin_spheres();
     let nx = 800;
     let ny = (nx as f64 / cam.aspect_ratio) as i32;
 
-    const N_SAMPLES: i32 = 400;
+    const N_SAMPLES: i32 = 100;
     const MAX_DEPTH: i32 = 50;
 
     let args: Vec<String> = env::args().collect();

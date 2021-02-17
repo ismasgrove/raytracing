@@ -1,6 +1,8 @@
 use super::Vec3;
 use std::cmp::{Eq, Ord, Ordering, PartialOrd};
 
+//    dead class
+
 #[derive(Debug)]
 pub struct Pixel {
     pub x: i32,
